@@ -111,6 +111,8 @@ message Data {
     FlightStatus flight_status = 19;
     // flightPriority
     FlightPriority flight_priority = 20;
+    // session ID
+    string session_id = 21;
 }
 
 // Struct containing a `list` of flight_plan [Vec\<Object\>]

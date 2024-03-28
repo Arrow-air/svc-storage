@@ -170,6 +170,7 @@ fn _get_data_obj(days_from_now_min: i64, days_from_now_max: i64) -> Data {
     }
 
     Data {
+        session_id: "AETH00001".to_string(),
         pilot_id: Uuid::new_v4().to_string(),
         vehicle_id: Uuid::new_v4().to_string(),
         path: Some(path),

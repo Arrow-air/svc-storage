@@ -32,6 +32,10 @@ impl Resource for ResourceObject<Data> {
             psql_id_cols: vec![String::from("flight_plan_id")],
             fields: HashMap::from([
                 (
+                    "session_id".to_string(),
+                    FieldDefinition::new(PsqlFieldType::TEXT, true),
+                ),
+                (
                     "pilot_id".to_string(),
                     FieldDefinition::new(PsqlFieldType::UUID, true),
                 ),
@@ -155,6 +159,7 @@ impl Resource for ResourceObject<Data> {
 impl GrpcDataObjectType for Data {
     fn get_field_value(&self, key: &str) -> Result<GrpcField, ArrErr> {
         match key {
+            "session_id" => Ok(GrpcField::String(self.session_id.clone())), //::prost::alloc::string::String,
             "pilot_id" => Ok(GrpcField::String(self.pilot_id.clone())), //::prost::alloc::string::String,
             "vehicle_id" => Ok(GrpcField::String(self.vehicle_id.clone())), //::prost::alloc::string::String,
             "path" => Ok(GrpcField::Option(self.path.clone().into())),      //u32,
@@ -216,6 +221,7 @@ impl TryFrom<Row> for Data {
 
     fn try_from(row: Row) -> Result<Self, ArrErr> {
         debug!("(try_from) Converting Row to flight_plan::Data: {:?}", row);
+        let session_id: String = row.get("session_id");
         let pilot_id: String = row.get::<&str, Uuid>("pilot_id").to_string();
         let vehicle_id: String = row.get::<&str, Uuid>("vehicle_id").to_string();
         let path = row.get::<&str, postgis::ewkb::LineString>("path");
@@ -287,6 +293,7 @@ impl TryFrom<Row> for Data {
             as i32;
 
         Ok(Data {
+            session_id,
             pilot_id,
             vehicle_id,
             path: Some(path.into()),
@@ -347,6 +354,7 @@ mod tests {
         ut_info!("(test_flight_plan_invalid_data) start");
 
         let data = Data {
+            session_id: String::from("test"),
             pilot_id: String::from("INVALID"),
             vehicle_id: String::from("INVALID"),
             path: Some(GeoLineString { points: vec![] }),
